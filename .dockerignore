@@ -1,0 +1,7 @@
+.git
+.gitignore
+*.log
+README.md
+README.zh-CN.md
+DEV.md
+deployment.json

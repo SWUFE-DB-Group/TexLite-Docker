@@ -1,0 +1,23 @@
+services:
+  texlite:
+    image: zhongpu/texlite:latest
+    restart: unless-stopped
+    user: "${TEXLITE_UID}:${TEXLITE_GID}"
+    working_dir: /data
+    environment:
+      HOME: /data
+      TEXLITE_CONFIG: /config/texlite.config.json
+      TEXLITE_INIT_PASSWORD: ${TEXLITE_INIT_PASSWORD:-}
+      TEXLITE_INIT_SITE_NAME: ${TEXLITE_INIT_SITE_NAME}
+      TEXLITE_INIT_ADMIN_EMAIL: ${TEXLITE_INIT_ADMIN_EMAIL}
+      TEXLITE_INIT_USERNAME: ${TEXLITE_INIT_USERNAME}
+      TEXLITE_INIT_DISPLAY_NAME: ${TEXLITE_INIT_DISPLAY_NAME}
+    volumes:
+      - type: bind
+        source: ${TEXLITE_CONFIG_DIR}
+        target: /config
+      - type: bind
+        source: ${TEXLITE_DATA_DIR}
+        target: /data
+    ports:
+      - "${TEXLITE_BIND_ADDRESS}:${TEXLITE_HOST_PORT}:3040"

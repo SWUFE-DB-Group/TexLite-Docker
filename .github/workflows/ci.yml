@@ -1,0 +1,49 @@
+name: Validate Docker deployment
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Validate scripts
+        run: |
+          bash -n docker-entrypoint.sh
+          bash -n scripts/compose.sh
+          node --check scripts/create-config.mjs
+          node -e 'JSON.parse(require("node:fs").readFileSync("deployment.example.json", "utf8"))'
+
+      - name: Validate Compose through the launcher
+        run: |
+          temporary_root="$(mktemp -d)"
+          trap 'rm -rf "$temporary_root"' EXIT
+          cp deployment.example.json deployment.json
+          XDG_CONFIG_HOME="$temporary_root/config" \
+          XDG_DATA_HOME="$temporary_root/data" \
+          ./scripts/compose.sh config -q
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Check Dockerfile
+        run: docker build --check --file Dockerfile .

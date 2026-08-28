@@ -1,0 +1,7 @@
+# User-owned deployment settings and diagnostics.
+deployment.json
+*.log
+
+# Editor and operating-system metadata.
+.DS_Store
+.idea/

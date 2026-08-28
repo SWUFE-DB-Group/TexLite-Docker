@@ -1,0 +1,10 @@
+{
+  "host": "127.0.0.1",
+  "port": 3040,
+  "configDir": "~/.config/texlite-docker",
+  "dataDir": "~/.local/share/texlite-docker",
+  "siteName": "TexLite",
+  "adminEmail": "",
+  "adminUsername": "admin",
+  "adminDisplayName": "Administrator"
+}
