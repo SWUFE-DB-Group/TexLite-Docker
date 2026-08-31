@@ -3,7 +3,7 @@
 ARG NODE_VERSION=24
 ARG TEXLIVE_VERSION=TL2026-2026-08-23
 ARG HARPER_VERSION=2.7.0
-ARG TEXLITE_VERSION=0.8.2
+ARG TEXLITE_VERSION=0.8.3
 
 # TexLite requires Node.js 24 or newer. Copy the official Node runtime into
 # the TeX Live image. These component versions are maintained by the image
