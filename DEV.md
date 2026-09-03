@@ -10,7 +10,7 @@ The image is still released independently from the TexLite npm package. The publ
 
 | Component | Current value |
 | --- | --- |
-| TexLite | `texlite@0.8.3` |
+| TexLite | `texlite@0.8.4` |
 | TeX Live base | `registry.gitlab.com/islandoftex/images/texlive:TL2026-2026-08-23-full` |
 | Harper CLI / Language Server | `2.7.0` |
 
