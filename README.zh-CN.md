@@ -23,7 +23,7 @@ cp deployment.example.json deployment.json
 | --- | --- | --- |
 | `host` | 宿主机绑定地址，例如 `127.0.0.1` 或 `0.0.0.0`。 | `127.0.0.1` |
 | `port` | Docker 对外暴露的宿主机端口。 | `3040` |
-| `basePath` | TexLite 对外访问的 URL 前缀。可填 `/`、`/texlite` 或 `/tools/texlite`。 | `/` |
+| `basePath` | TexLite 对外访问的 URL 前缀。根路径使用 `/`；子路径可使用 `/texlite`、`/tools/texlite` 等。 | `/` |
 | `configDir` | 存放 `texlite.config.json` 的宿主机目录。 | `~/.config/texlite-docker` |
 | `dataDir` | 存放项目、SQLite 数据、PDF 和历史版本的宿主机目录。 | `~/.local/share/texlite-docker` |
 | `siteName` | 首次初始化时创建的网站标题。 | `TexLite` |

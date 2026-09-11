@@ -24,7 +24,7 @@ The first interactive launch asks for the administrator password. Then open <htt
 | --- | --- | --- |
 | `host` | Host address to bind, such as `127.0.0.1` or `0.0.0.0`. | `127.0.0.1` |
 | `port` | Host port exposed by Docker. | `3040` |
-| `basePath` | Public URL mount point. Use `/`, `/texlite`, or `/tools/texlite`. | `/` |
+| `basePath` | Public URL mount point. Use `/` for the root, or a subpath such as `/texlite` or `/tools/texlite`. | `/` |
 | `configDir` | Host directory that stores `texlite.config.json`. | `~/.config/texlite-docker` |
 | `dataDir` | Host directory for projects, SQLite data, PDFs, and histories. | `~/.local/share/texlite-docker` |
 | `siteName` | Website title created at the first initialization. | `TexLite` |
