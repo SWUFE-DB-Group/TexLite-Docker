@@ -59,6 +59,19 @@ You can change both host paths in `deployment.json`. Back them up: deleting this
 | `./scripts/compose.sh exec texlite texlite doctor` | Check the running installation, including its mounted configuration and data directory. |
 | `./scripts/compose.sh down` | Stop and remove the container and network. Persistent configuration and data are retained. |
 
+## Upgrade
+
+For a normal upgrade, update both this launcher and the TexLite image:
+
+```bash
+git status
+git pull --ff-only
+./scripts/compose.sh pull
+./scripts/compose.sh up -d
+```
+
+`git pull --ff-only` updates the Compose launcher, scripts, example configuration, and documentation. `./scripts/compose.sh pull` updates the `zhongpu/texlite:latest` image. If `git status` reports changes to tracked files, resolve them before pulling. Ignored `deployment.json` and the mounted configuration/data directories are not changed by `git pull`. If you only need a newer image and not launcher changes, run the final two commands.
+
 ## Configuration and security
 
 Use `deployment.json` for Docker-level settings and the initial site/administrator values. `basePath` is passed to every container launch as `TEXLITE_BASE_PATH`, so changing it and running `./scripts/compose.sh up -d` takes effect even when `texlite.config.json` already exists. Do not use `restart` alone for this change: it does not recreate the container with the new environment. The four site/administrator values apply only while TexLite creates its first configuration and administrator. Afterwards, edit the mounted `texlite.config.json` to change the website name or administrator contact email, and use TexLite's User Management page to manage administrators. The example publishes the container's port `3040` only on `127.0.0.1:3040`; keep that local binding unless you deliberately place a TLS-enabled reverse proxy in front of it.

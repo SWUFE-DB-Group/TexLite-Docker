@@ -58,6 +58,19 @@ cp deployment.example.json deployment.json
 | `./scripts/compose.sh exec texlite texlite doctor` | 检查正在运行的安装，包括已挂载的配置和数据目录。 |
 | `./scripts/compose.sh down` | 停止并移除容器和网络；持久化配置和数据不会被删除。 |
 
+## 升级
+
+常规升级时，应同时更新本启动器仓库和 TexLite 镜像：
+
+```bash
+git status
+git pull --ff-only
+./scripts/compose.sh pull
+./scripts/compose.sh up -d
+```
+
+`git pull --ff-only` 会更新 Compose 启动器、脚本、示例配置和文档；`./scripts/compose.sh pull` 会更新 `zhongpu/texlite:latest` 镜像。若 `git status` 显示已跟踪文件存在改动，请先处理这些改动再拉取。被忽略的 `deployment.json` 以及挂载的配置/数据目录不会被 `git pull` 修改。若只需要新版镜像而不需要启动器改动，则执行最后两条命令即可。
+
 ## 配置与安全
 
 使用 `deployment.json` 配置 Docker 层面的宿主机端口、绑定地址及初始网站/管理员信息。`basePath` 会在每次启动容器时作为 `TEXLITE_BASE_PATH` 传入；因此即使 `texlite.config.json` 已存在，修改该项后执行 `./scripts/compose.sh up -d` 也会生效。不要只执行 `restart`，它不会使用新的环境变量重建容器。网站与管理员的四项初始化信息只在 TexLite 创建第一个配置和管理员时生效。之后，如需修改网站标题或管理员联系邮箱，请编辑挂载的 `texlite.config.json`；如需管理管理员账户，请使用 TexLite 的“用户管理”页面。示例仅将容器的 `3040` 端口暴露为 `127.0.0.1:3040`；除非明确在其前方配置 TLS 反向代理，否则请保持本机绑定。
