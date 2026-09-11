@@ -24,12 +24,15 @@ The first interactive launch asks for the administrator password. Then open <htt
 | --- | --- | --- |
 | `host` | Host address to bind, such as `127.0.0.1` or `0.0.0.0`. | `127.0.0.1` |
 | `port` | Host port exposed by Docker. | `3040` |
+| `basePath` | Public URL mount point. Use `/`, `/texlite`, or `/tools/texlite`. | `/` |
 | `configDir` | Host directory that stores `texlite.config.json`. | `~/.config/texlite-docker` |
 | `dataDir` | Host directory for projects, SQLite data, PDFs, and histories. | `~/.local/share/texlite-docker` |
 | `siteName` | Website title created at the first initialization. | `TexLite` |
 | `adminEmail` | Administrator contact email created at the first initialization. | Empty |
 | `adminUsername` | First administrator username. | `admin` |
 | `adminDisplayName` | First administrator display name. | `Administrator` |
+
+Existing `deployment.json` files that omit `basePath` remain compatible and use `/`.
 
 The initial administrator password is intentionally not in `deployment.json`; the launcher requests it interactively on the first `up` command.
 
@@ -58,7 +61,11 @@ You can change both host paths in `deployment.json`. Back them up: deleting this
 
 ## Configuration and security
 
-Use `deployment.json` for Docker-level settings and the initial site/administrator values. Those four initialization values apply only while TexLite creates its first configuration and administrator. Afterwards, edit the mounted `texlite.config.json` to change the website name or administrator contact email, and use TexLite's User Management page to manage administrators. The example publishes the container's port `3040` only on `127.0.0.1:3040`; keep that local binding unless you deliberately place a TLS-enabled reverse proxy in front of it.
+Use `deployment.json` for Docker-level settings and the initial site/administrator values. `basePath` is passed to every container launch as `TEXLITE_BASE_PATH`, so changing it and running `./scripts/compose.sh up -d` takes effect even when `texlite.config.json` already exists. Do not use `restart` alone for this change: it does not recreate the container with the new environment. The four site/administrator values apply only while TexLite creates its first configuration and administrator. Afterwards, edit the mounted `texlite.config.json` to change the website name or administrator contact email, and use TexLite's User Management page to manage administrators. The example publishes the container's port `3040` only on `127.0.0.1:3040`; keep that local binding unless you deliberately place a TLS-enabled reverse proxy in front of it.
+
+### Reverse-proxy subpath
+
+To serve TexLite below a path shared with other applications, set `"basePath": "/texlite"` in `deployment.json`. The public URL is then `https://example.com/texlite/`. Your reverse proxy must forward that prefix unchanged, including WebSocket upgrade requests; do not use a proxy rule that strips `/texlite`. See the upstream [TexLite operations guide](https://github.com/SWUFE-DB-Group/TexLite/blob/79eee306ba2bc16908b519270b9f1ec227096c09/OPERATIONS.md#reverse-proxy-subpath) for Nginx and Caddy examples.
 
 TexLite is designed for small, trusted teams. Treat project sources, project-level `latexmkrc`, Git tokens, and administrator credentials as trusted inputs.
 

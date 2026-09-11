@@ -23,12 +23,15 @@ cp deployment.example.json deployment.json
 | --- | --- | --- |
 | `host` | 宿主机绑定地址，例如 `127.0.0.1` 或 `0.0.0.0`。 | `127.0.0.1` |
 | `port` | Docker 对外暴露的宿主机端口。 | `3040` |
+| `basePath` | TexLite 对外访问的 URL 前缀。可填 `/`、`/texlite` 或 `/tools/texlite`。 | `/` |
 | `configDir` | 存放 `texlite.config.json` 的宿主机目录。 | `~/.config/texlite-docker` |
 | `dataDir` | 存放项目、SQLite 数据、PDF 和历史版本的宿主机目录。 | `~/.local/share/texlite-docker` |
 | `siteName` | 首次初始化时创建的网站标题。 | `TexLite` |
 | `adminEmail` | 首次初始化时创建的管理员联系邮箱。 | 留空 |
 | `adminUsername` | 第一个管理员的用户名。 | `admin` |
 | `adminDisplayName` | 第一个管理员的显示名称。 | `Administrator` |
+
+已有的 `deployment.json` 即使尚未包含 `basePath`，也仍然兼容，并会默认使用 `/`。
 
 初始管理员密码不会写入 `deployment.json`；首次执行 `up` 时，启动脚本会在终端中交互式请求密码。
 
@@ -57,7 +60,11 @@ cp deployment.example.json deployment.json
 
 ## 配置与安全
 
-使用 `deployment.json` 配置 Docker 层面的宿主机端口、绑定地址及初始网站/管理员信息。这四项初始化信息仅在 TexLite 创建第一个配置和管理员时生效。之后，如需修改网站标题或管理员联系邮箱，请编辑挂载的 `texlite.config.json`；如需管理管理员账户，请使用 TexLite 的“用户管理”页面。示例仅将容器的 `3040` 端口暴露为 `127.0.0.1:3040`；除非明确在其前方配置 TLS 反向代理，否则请保持本机绑定。
+使用 `deployment.json` 配置 Docker 层面的宿主机端口、绑定地址及初始网站/管理员信息。`basePath` 会在每次启动容器时作为 `TEXLITE_BASE_PATH` 传入；因此即使 `texlite.config.json` 已存在，修改该项后执行 `./scripts/compose.sh up -d` 也会生效。不要只执行 `restart`，它不会使用新的环境变量重建容器。网站与管理员的四项初始化信息只在 TexLite 创建第一个配置和管理员时生效。之后，如需修改网站标题或管理员联系邮箱，请编辑挂载的 `texlite.config.json`；如需管理管理员账户，请使用 TexLite 的“用户管理”页面。示例仅将容器的 `3040` 端口暴露为 `127.0.0.1:3040`；除非明确在其前方配置 TLS 反向代理，否则请保持本机绑定。
+
+### 通过反向代理部署到子路径
+
+若 TexLite 与其他应用共用同一域名，可在 `deployment.json` 中设置 `"basePath": "/texlite"`。这时对外地址为 `https://example.com/texlite/`。反向代理必须保留 `/texlite` 前缀，并转发 WebSocket 升级请求；不要使用会剥离该前缀的代理规则。Nginx 与 Caddy 的示例见上游 [TexLite 运维文档](https://github.com/SWUFE-DB-Group/TexLite/blob/79eee306ba2bc16908b519270b9f1ec227096c09/OPERATIONS.md#reverse-proxy-subpath)。
 
 TexLite 面向小型可信团队。请将项目源码、项目级 `latexmkrc`、Git token 和管理员凭据视为可信输入。
 

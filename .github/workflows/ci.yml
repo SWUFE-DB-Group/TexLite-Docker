@@ -33,13 +33,24 @@ jobs:
           node --check scripts/create-config.mjs
           node -e 'JSON.parse(require("node:fs").readFileSync("deployment.example.json", "utf8"))'
 
+      - name: Validate generated base-path configuration
+        run: |
+          config_file="$(mktemp)"
+          rm -f "$config_file"
+          trap 'rm -f "$config_file"' EXIT
+          TEXLITE_DOCKER_ENGINES="pdflatex,xelatex" \
+          TEXLITE_BASE_PATH="/tools/texlite/" \
+          node scripts/create-config.mjs "$config_file"
+          node -e 'const config = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); if (config.server.basePath !== "/tools/texlite") process.exit(1)' "$config_file"
+
       - name: Validate Compose through the launcher
         run: |
           temporary_root="$(mktemp -d)"
           trap 'rm -rf "$temporary_root"' EXIT
           cp deployment.example.json deployment.json
-          XDG_CONFIG_HOME="$temporary_root/config" \
-          XDG_DATA_HOME="$temporary_root/data" \
+          TEMPORARY_ROOT="$temporary_root" node -e 'const fs = require("node:fs"); const config = JSON.parse(fs.readFileSync("deployment.json", "utf8")); config.basePath = "/tools/texlite"; config.configDir = `${process.env.TEMPORARY_ROOT}/config`; config.dataDir = `${process.env.TEMPORARY_ROOT}/data`; fs.writeFileSync("deployment.json", `${JSON.stringify(config, null, 2)}\n`);'
+          ./scripts/compose.sh config -q
+          node -e 'const fs = require("node:fs"); const config = JSON.parse(fs.readFileSync("deployment.json", "utf8")); delete config.basePath; fs.writeFileSync("deployment.json", `${JSON.stringify(config, null, 2)}\n`);'
           ./scripts/compose.sh config -q
 
       - name: Set up Docker Buildx

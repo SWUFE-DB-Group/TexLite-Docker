@@ -47,6 +47,49 @@ required_json_value() {
   json_value "$key"
 }
 
+optional_json_value() {
+  local key="$1"
+  local default_value="$2"
+  if json_key_exists "$key"; then
+    json_value "$key"
+  else
+    printf '%s' "$default_value"
+  fi
+}
+
+normalize_base_path() {
+  local base_path="$1"
+  local segment
+  local -a segments
+
+  base_path="${base_path#"${base_path%%[![:space:]]*}"}"
+  base_path="${base_path%"${base_path##*[![:space:]]}"}"
+
+  if [[ "$base_path" == "/" ]]; then
+    printf '%s' "/"
+    return
+  fi
+
+  while [[ "$base_path" == */ ]]; do
+    base_path="${base_path%/}"
+  done
+
+  if [[ "$base_path" != /* || "$base_path" == *//* ]]; then
+    echo "deployment.json basePath must be / or a URL path such as /texlite or /tools/texlite." >&2
+    return 1
+  fi
+
+  IFS='/' read -r -a segments <<< "${base_path:1}"
+  for segment in "${segments[@]}"; do
+    if [[ -z "$segment" || "$segment" == "." || "$segment" == ".." || ! "$segment" =~ ^[A-Za-z0-9._~-]+$ ]]; then
+      echo "deployment.json basePath must be / or a URL path such as /texlite or /tools/texlite." >&2
+      return 1
+    fi
+  done
+
+  printf '%s' "$base_path"
+}
+
 expand_home_path() {
   case "$1" in
     "~") printf '%s' "$HOME" ;;
@@ -61,6 +104,7 @@ expand_home_path() {
 
 TEXLITE_BIND_ADDRESS="$(required_json_value host)"
 TEXLITE_HOST_PORT="$(required_json_value port)"
+TEXLITE_BASE_PATH="$(normalize_base_path "$(optional_json_value basePath "/")")"
 TEXLITE_CONFIG_DIR="$(expand_home_path "$(required_json_value configDir)")"
 TEXLITE_DATA_DIR="$(expand_home_path "$(required_json_value dataDir)")"
 TEXLITE_INIT_SITE_NAME="$(required_json_value siteName)"
@@ -76,7 +120,7 @@ TEXLITE_INIT_DISPLAY_NAME="$(required_json_value adminDisplayName)"
   echo "deployment.json port must be between 1 and 65535." >&2
   exit 1
 }
-for configured_value in "$TEXLITE_INIT_SITE_NAME" "$TEXLITE_INIT_ADMIN_EMAIL" "$TEXLITE_INIT_USERNAME" "$TEXLITE_INIT_DISPLAY_NAME"; do
+for configured_value in "$TEXLITE_BASE_PATH" "$TEXLITE_INIT_SITE_NAME" "$TEXLITE_INIT_ADMIN_EMAIL" "$TEXLITE_INIT_USERNAME" "$TEXLITE_INIT_DISPLAY_NAME"; do
   [[ "$configured_value" != *$'\n'* && "$configured_value" != *$'\r'* && "$configured_value" != *'"'* && "$configured_value" != *\\* ]] || {
     echo "deployment.json text values must not contain quotes, backslashes, or line breaks." >&2
     exit 1
@@ -85,7 +129,7 @@ done
 
 export TEXLITE_UID="$(id -u)"
 export TEXLITE_GID="$(id -g)"
-export TEXLITE_BIND_ADDRESS TEXLITE_HOST_PORT TEXLITE_CONFIG_DIR TEXLITE_DATA_DIR
+export TEXLITE_BIND_ADDRESS TEXLITE_HOST_PORT TEXLITE_BASE_PATH TEXLITE_CONFIG_DIR TEXLITE_DATA_DIR
 export TEXLITE_INIT_SITE_NAME TEXLITE_INIT_ADMIN_EMAIL TEXLITE_INIT_USERNAME TEXLITE_INIT_DISPLAY_NAME
 
 config_directory="$TEXLITE_CONFIG_DIR"
