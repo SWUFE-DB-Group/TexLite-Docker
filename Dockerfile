@@ -33,9 +33,9 @@ RUN apt-get update \
          arm64) harper_arch=aarch64 ;; \
          *) echo "Unsupported Harper architecture: ${harper_target_arch}" >&2; exit 1 ;; \
        esac \
-    && curl --fail --location --retry 3 --output /tmp/harper-cli.tar.gz \
+    && curl --fail --location --retry 10 --retry-delay 10 --retry-all-errors --connect-timeout 30 --max-time 300 --output /tmp/harper-cli.tar.gz \
          "https://github.com/Automattic/harper/releases/download/v${HARPER_VERSION}/harper-cli-${harper_arch}-unknown-linux-gnu.tar.gz" \
-    && curl --fail --location --retry 3 --output /tmp/harper-ls.tar.gz \
+    && curl --fail --location --retry 10 --retry-delay 10 --retry-all-errors --connect-timeout 30 --max-time 300 --output /tmp/harper-ls.tar.gz \
          "https://github.com/Automattic/harper/releases/download/v${HARPER_VERSION}/harper-ls-${harper_arch}-unknown-linux-gnu.tar.gz" \
     && tar -xzf /tmp/harper-cli.tar.gz -C /usr/local/bin harper-cli \
     && tar -xzf /tmp/harper-ls.tar.gz -C /usr/local/bin harper-ls \
