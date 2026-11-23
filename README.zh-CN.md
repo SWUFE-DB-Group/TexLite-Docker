@@ -2,7 +2,7 @@
 
 这是已发布 [TexLite](https://www.npmjs.com/package/texlite) 镜像的轻量 Docker Compose 启动仓库。配置、SQLite 数据、项目、PDF 与凭据均保存在仓库之外；宿主机只需安装 Docker 和 Docker Compose。
 
-镜像以前台方式运行 TexLite（不使用 PM2），并内置 Git、Harper CLI、Harper Language Server 与固定的完整 TeX Live 环境。宿主机无需额外安装 LaTeX、Node.js、Git、Harper 或 PM2。
+镜像以前台方式运行 TexLite（不使用 PM2），并内置 Git、Harper CLI、Harper Language Server 与固定的完整 TeX Live 环境。镜像也内置 Chromium，用于在服务端将 draw.io 图表导出为 PDF。宿主机无需额外安装这些依赖。
 
 ## 开始使用
 

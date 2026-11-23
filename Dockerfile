@@ -25,7 +25,7 @@ USER root
 COPY --from=node-runtime /usr/local /usr/local
 
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends ca-certificates curl git tini python3 make g++ \
+    && apt-get install --yes --no-install-recommends ca-certificates chromium curl git tini python3 make g++ \
     && rm -rf /var/lib/apt/lists/* \
     && harper_target_arch="${TARGETARCH:-$(dpkg --print-architecture)}" \
     && case "$harper_target_arch" in \
@@ -44,6 +44,7 @@ RUN apt-get update \
      && npm install --global --omit=dev "texlite@${TEXLITE_VERSION}" \
     && node --version \
     && texlite --version \
+    && chromium --version \
     && harper-cli --version \
     && harper-ls --version
 

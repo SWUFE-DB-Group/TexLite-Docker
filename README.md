@@ -1,5 +1,7 @@
 # TexLite Docker Deployment
 
+The image includes Chromium for server-side draw.io PDF export.
+
 [![Docker Hub](https://img.shields.io/docker/v/zhongpu/texlite?label=Docker%20Hub)](https://hub.docker.com/r/zhongpu/texlite)
 
 This repository is a small Docker Compose launcher for a released [TexLite](https://www.npmjs.com/package/texlite) image. It keeps configuration, SQLite data, projects, PDFs, and credentials outside the checkout. `docker` and `docker-compose` are the only host requirements.
